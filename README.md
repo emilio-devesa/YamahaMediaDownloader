@@ -1,8 +1,8 @@
 # Yamaha Media Downloader
 
-This project contains Python scripts that automatically download all practice audios from the **Yamaha books** available on the official Yamaha Music School media pages.
+This project provides a **single Python tool** that automatically downloads all practice audios from the **Yamaha Music Schools** books and courses available on the official media pages.
 
-Each script opens the target page in a **Chromium-based browser (Brave)**, simulates clicks to load every audio file, and saves them locally with proper filenames.
+The script opens the target Yamaha Media page in a **Chromium-based browser (Brave)**, simulates clicks to load every track, and saves the audio files locally with proper filenames.
 
 ---
 
@@ -18,7 +18,7 @@ Each script opens the target page in a **Chromium-based browser (Brave)**, simul
 
 ## 🚀 Setup & Installation
 
-This project includes automatic setup scripts for macOS to make installation easy.
+This project includes an automatic setup script for macOS to make installation simple.
 
 ### 1. Clone the repository
 ```
@@ -26,48 +26,54 @@ git clone https://github.com/emilio-devesa/YamahaMediaDownloader.git
 cd YamahaMediaDownloader
 ```
 
-### 2. Install
+### 2. Install dependencies
 ```
 ./setup.sh
 ```
-These scripts will:
+This script will:
 - Create and activate a Python virtual environment
-- Install all dependencies listed in requirements.txt
-- Check for Brave Browser (used by the scripts)
-- Automatically manage ChromeDriver using webdriver-manager
+- Install all dependencies listed in `requirements.txt`
+- Ask you for your Brave Browser and ChromeDriver paths
+- Store them in a `.env` file for future runs
 
 ### 3. Activate environment
 ```
 source venv/bin/activate
 ```
 
-### 5. Use the script
-Each script corresponds to one Yamaha book. For example:
+## 🎵 Usage
+
+All course URLs are defined in `data/courses.txt` using a simple key-value format.
+To download all audios for a specific course, just pass the course key as an argument. For example:
 ```
-python src/yamaha_drums_1_downloader.py
+python src/yamaha_media_downloader.py drums_1
 ```
-The audio files will be saved in a folder in the same directory where the script is executed. The folder will have a descriptive name, e.g.:
+Audio files will be saved in a subfolder automatically created in the current directory:
 ```
 yamaha_drums_1/
 ```
 
-## ⚙️ Requirements
-- Python 3.9 or higher
-- Brave Browser installed
-- Internet connection
+## ⚙️ Configuration
+
+You can edit your .env file at any time to update your Brave or ChromeDriver paths:
+```
+BRAVE_PATH=/Applications/Brave Browser.app/Contents/MacOS/Brave Browser
+CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
+```
+
+To enable headless mode (run without opening a browser window), uncomment this line inside the script:
+```
+# options.add_argument("--headless")
+```
 
 ## 🧩 Notes
 
-The scripts use Selenium WebDriver to control Brave (Chromium).
-You can enable headless mode by uncommenting this line:
-```
-# options.add_argument("--headless")
-``` 
-
-Each audio file keeps the name shown in the Yamaha Media list (e.g. `02-01 Chapter 1 - 4th Rhythm Pattern 2.mp3`).
+- The script uses **Selenium WebDriver** to automate the browser.
+- Each file is saved using the title displayed on the Yamaha Media page (e.g. `02-01 Chapter 1 - 4th Rhythm Pattern 2.mp3`).
+- You can easily add new courses by editing `data/courses.txt`
 
 ## 🪪 License
 
-This repository is for educational and personal use only.
-All rights to the audio content belong to Yamaha Corporation.
+This repository is for **educational and personal use only**.
 
+All rights to the audio content belong to **Yamaha Corporation**.
