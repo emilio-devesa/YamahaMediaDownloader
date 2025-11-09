@@ -2,3 +2,4 @@ DRUMS_1 = https://yms.ymm.co.jp/media/?page=60f7853f5716e39915f3df359607567c
 DRUMS_2 = https://yms.ymm.co.jp/media/?page=0658e5118923e3fbf278ef84f019409d
 DRUMS_3 = https://yms.ymm.co.jp/media/?page=98a57e2cb7ef5d9c408286963a9768c3
 VOCAL_EXTENSION = https://yms.ymm.co.jp/media/index.html?page=0d2503ac57426e62aa7b2e0594bc3872
+PIANO_START = https://yms.ymm.co.jp/media/index.html?page=a8f844e7e374007866c72ed7da065bff
