@@ -26,45 +26,55 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # Detect Brave (default path on macOS)
-DEFAULT_BRAVE_PATH="/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
+DEFAULT_BRAVE_PATH="/Applications/Brave Browser.app"
 
 echo ""
 echo "👉 Brave Browser setup"
-read -p "Enter the full path to Brave Browser [$DEFAULT_BRAVE_PATH]: " BRAVE_PATH
-BRAVE_PATH=${BRAVE_PATH:-$DEFAULT_BRAVE_PATH}
+read -p "Enter the full path to Brave Browser app [$DEFAULT_BRAVE_PATH]: " USER_INPUT
+USER_INPUT=${USER_INPUT:-$DEFAULT_BRAVE_PATH}
 
+# Remove quotes (both single and double)
+USER_INPUT=$(echo "$USER_INPUT" | sed "s/^['\"]//;s/['\"]$//")
+
+# Normalize path: if ends with .app, append binary path
+if [[ "$USER_INPUT" == *.app ]]; then
+  BRAVE_PATH="$USER_INPUT/Contents/MacOS/Brave Browser"
+else
+  BRAVE_PATH="$USER_INPUT"
+fi
+
+# Validate Brave Binary
 if [ ! -f "$BRAVE_PATH" ]; then
   echo "❌ Could not find Brave at: $BRAVE_PATH"
   echo "Please check your installation path."
+  deactivate
   exit 1
 fi
 
-#Detect ChromeDriver (default path on macOS)
+# Default ChromeDriver path on macOS
 echo ""
 echo "👉 ChromeDriver setup"
-DEFAULT_CHROMEDRIVER_PATH="$HOME/chromedriver/chromedriver"
-read -p "Enter the full path to ChromeDriver [$DEFAULT_CHROMEDRIVER_PATH]: " CHROMEDRIVER_PATH
-CHROMEDRIVER_PATH=${CHROMEDRIVER_PATH:-$DEFAULT_CHROMEDRIVER_PATH}
-
-if [ ! -f "$CHROMEDRIVER_PATH" ]; then
-  echo "❌ Could not find ChromeDriver at: $CHROMEDRIVER_PATH"
-  exit 1
-fi
-
-# Save configuration
-echo "BRAVE_PATH=\"$BRAVE_PATH\"" > .env
-echo "✅ Saved Brave Browser path to .env"
-echo "CHROMEDRIVER_PATH=\"$CHROMEDRIVER_PATH\"" >> .env
-echo "✅ Saved ChromeDriver path to .env"
+DEFAULT_CHROMEDRIVER_PATH="/usr/local/bin/chromedriver"
 
 # Ensure chromedriver exists or download it
-if [ ! -f "/usr/local/bin/chromedriver" ] && [ ! -f "$HOME/chromedriver/chromedriver" ]; then
+if [ ! -f "$DEFAULT_CHROMEDRIVER_PATH" ]; then
   echo "⬇️ Installing latest ChromeDriver..."
   pip install webdriver-manager
   echo "✅ ChromeDriver will be managed automatically by WebDriver Manager."
 else
-  echo "✅ ChromeDriver detected."
+  echo "✅ ChromeDriver detected at $DEFAULT_CHROMEDRIVER_PATH."
 fi
 
+# Save configuration
+echo ""
+echo "📝 Saving configuration..."
+{
+  echo "BRAVE_PATH=\"$BRAVE_PATH\""
+  echo "CHROMEDRIVER_PATH=\"$DEFAULT_CHROMEDRIVER_PATH\""
+} > .env
+
+echo "✅ Configuration saved to .env file."
+
+echo ""
 echo "🎉 Setup complete!"
-echo "To activate your environment, run: source venv/bin/activate"
+echo "To activate your environment later, run: source venv/bin/activate"
