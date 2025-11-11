@@ -10,6 +10,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from browser_factory import get_browser_driver
+
 
 # ---------- CARGAR VARIABLES DE ENTORNO ----------
 load_dotenv()
@@ -55,7 +57,7 @@ options.binary_location = BRAVE_PATH
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
-driver = webdriver.Chrome(service=Service(CHROMEDRIVER_PATH), options=options)
+driver = get_browser_driver()
 wait = WebDriverWait(driver, 20)
 
 print(f"🌐 Abriendo el curso '{COURSE_KEY}'...")

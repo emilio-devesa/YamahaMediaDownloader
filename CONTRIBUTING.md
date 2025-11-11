@@ -54,15 +54,18 @@ Run the automated setup:
 ```
 ./setup.sh
 ```
-This will:
-- Create and activate a virtual environment
-- Install dependencies
-- Ask for your Brave and ChromeDriver paths
+This script will:
+- Create and activate a Python virtual environment
+- Install all dependencies listed in `requirements.txt`
+- Detect your installed browser (Brave, Chrome, Edge, or Safari)
+- Extract its version and automatically install the correct WebDriver
+- Store the browser path and environment settings in a `.env` file for future runs
 
-Alternatively, you can set them manually in a `.env` file:
+Alternatively, you can set them manually in a `.env` file. For example:
 ```
-BRAVE_PATH=/Applications/Brave Browser.app/Contents/MacOS/Brave Browser
-CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
+BROWSER="brave"
+BROWSER_PATH="/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
+CHROMEDRIVER_PATH="/usr/local/bin/chromedriver"
 ```
 
 3. Run the downloader
@@ -92,6 +95,7 @@ Before submitting a pull request:
 YamahaMediaDownloader/
 │
 ├── src/                    # Main Python scripts
+├── ├── browser_factory.py
 │   └── yamaha_media_downloader.py
 │
 ├── data/

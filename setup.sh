@@ -25,52 +25,103 @@ echo "📥 Installing dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Detect Brave (default path on macOS)
-DEFAULT_BRAVE_PATH="/Applications/Brave Browser.app"
-
 echo ""
-echo "👉 Brave Browser setup"
-read -p "Enter the full path to Brave Browser app [$DEFAULT_BRAVE_PATH]: " USER_INPUT
-USER_INPUT=${USER_INPUT:-$DEFAULT_BRAVE_PATH}
+echo "🌐 Choose your browser:"
+echo "1) Brave"
+echo "2) Chrome"
+echo "3) Edge"
+echo "4) Safari"
+read -p "Select an option [1-4]: " BROWSER_CHOICE
 
-# Remove quotes (both single and double)
-USER_INPUT=$(echo "$USER_INPUT" | sed "s/^['\"]//;s/['\"]$//")
+case $BROWSER_CHOICE in
+    1)
+        BROWSER="brave"
+        DEFAULT_PATH="/Applications/Brave Browser.app"
+        ;;
+    2)
+        BROWSER="chrome"
+        DEFAULT_PATH="/Applications/Google Chrome.app"
+        ;;
+    3)
+        BROWSER="edge"
+        DEFAULT_PATH="/Applications/Microsoft Edge.app"
+        ;;
+    4)
+        BROWSER="safari"
+        ;;
+    *)
+        echo "❌ Invalid option."
+        deactivate
+        exit 1
+    ;;
+esac
 
-# Normalize path: if ends with .app, append binary path
-if [[ "$USER_INPUT" == *.app ]]; then
-  BRAVE_PATH="$USER_INPUT/Contents/MacOS/Brave Browser"
+BRAVE_PATH=""
+CHROMEDRIVER_PATH=""
+
+if [ "$BROWSER" != "safari" ]; then
+    echo ""
+    echo "👉 Browser setup for $BROWSER"
+    read -p "Enter the full path to the browser app [$DEFAULT_PATH]: " USER_INPUT
+    USER_INPUT=${USER_INPUT:-$DEFAULT_PATH}
+    USER_INPUT=$(echo "$USER_INPUT" | sed "s/^['\"]//;s/['\"]$//")
+
+    # Append internal binary path if ends with .app
+    if [[ "$USER_INPUT" == *.app ]]; then
+    case $BROWSER in
+        brave)
+            BROWSER_PATH="$USER_INPUT/Contents/MacOS/Brave Browser"
+            ;;
+        chrome)
+            BROWSER_PATH="$USER_INPUT/Contents/MacOS/Google Chrome"
+            ;;
+        edge)
+            BROWSER_PATH="$USER_INPUT/Contents/MacOS/Microsoft Edge"
+            ;;
+    esac
+    else
+        BROWSER_PATH="$USER_INPUT"
+    fi
+
+    if [ ! -f "$BROWSER_PATH" ]; then
+        echo "❌ Could not find browser binary at: $BROWSER_PATH"
+        deactivate
+        exit 1
+    fi
+
+    # Chrome/Brave/Edge use ChromeDriver or MSEdgeDriver
+    DEFAULT_CHROMEDRIVER_PATH="/usr/local/bin/chromedriver"
+    DEFAULT_EDGEDRIVER_PATH="/usr/local/bin/msedgedriver"
+
+    echo ""
+    echo "🔍 Checking for WebDriver..."
+    if [ "$BROWSER" = "edge" ]; then
+        DRIVER_PATH="$DEFAULT_EDGEDRIVER_PATH"
+        DRIVER_NAME="msedgedriver"
+    else
+        DRIVER_PATH="$DEFAULT_CHROMEDRIVER_PATH"
+        DRIVER_NAME="chromedriver"
+    fi
+
+    if [ ! -f "$DRIVER_PATH" ]; then
+        echo "⬇️ Installing webdriver-manager..."
+        pip install webdriver-manager
+        echo "✅ WebDriver will be managed automatically by WebDriver Manager."
+    else
+        echo "✅ Found $DRIVER_NAME at $DRIVER_PATH"
+    fi
 else
-  BRAVE_PATH="$USER_INPUT"
-fi
-
-# Validate Brave Binary
-if [ ! -f "$BRAVE_PATH" ]; then
-  echo "❌ Could not find Brave at: $BRAVE_PATH"
-  echo "Please check your installation path."
-  deactivate
-  exit 1
-fi
-
-# Default ChromeDriver path on macOS
-echo ""
-echo "👉 ChromeDriver setup"
-DEFAULT_CHROMEDRIVER_PATH="/usr/local/bin/chromedriver"
-
-# Ensure chromedriver exists or download it
-if [ ! -f "$DEFAULT_CHROMEDRIVER_PATH" ]; then
-  echo "⬇️ Installing latest ChromeDriver..."
-  pip install webdriver-manager
-  echo "✅ ChromeDriver will be managed automatically by WebDriver Manager."
-else
-  echo "✅ ChromeDriver detected at $DEFAULT_CHROMEDRIVER_PATH."
+    echo ""
+    echo "🧩 Safari selected: no path required."
+    echo "Make sure to enable 'Allow Remote Automation' in Safari’s Develop menu."
 fi
 
 # Save configuration
-echo ""
-echo "📝 Saving configuration..."
 {
-  echo "BRAVE_PATH=\"$BRAVE_PATH\""
-  echo "CHROMEDRIVER_PATH=\"$DEFAULT_CHROMEDRIVER_PATH\""
+  echo "BROWSER=\"$BROWSER\""
+  [ "$BROWSER" != "safari" ] && echo "BROWSER_PATH=\"$BROWSER_PATH\""
+  [ "$BROWSER" = "brave" -o "$BROWSER" = "chrome" ] && echo "CHROMEDRIVER_PATH=\"$DEFAULT_CHROMEDRIVER_PATH\""
+  [ "$BROWSER" = "edge" ] && echo "EDGEDRIVER_PATH=\"$DEFAULT_EDGEDRIVER_PATH\""
 } > .env
 
 echo "✅ Configuration saved to .env file."
